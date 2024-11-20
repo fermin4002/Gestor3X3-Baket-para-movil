@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title=""
+        android:icon="@drawable/baseline_settings_24"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:id="@+id/pap"
+                android:title="About"
+                android:icon="@drawable/baseline_settings_24"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/pep"
+                android:title="Settings"
+                android:icon="@drawable/baseline_settings_24"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/pip"
+                android:title="About"
+                android:icon="@drawable/baseline_settings_24"
+                app:showAsAction="never"
+                />
+
+        </menu>
+
+    </item>
+
+
+</menu>
