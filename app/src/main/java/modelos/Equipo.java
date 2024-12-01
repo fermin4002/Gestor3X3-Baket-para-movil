@@ -1,21 +1,22 @@
 package modelos;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Equipo {
+public class Equipo implements Serializable {
     String nombre;
     ArrayList<Jugador> jugadores;
-    String img;
 
-    public Equipo(String nombre, ArrayList<Jugador> jugadores, String img) {
+
+    public Equipo(String nombre, ArrayList<Jugador> jugadores) {
         this.nombre = nombre;
         this.jugadores = jugadores;
-        this.img = img;
+
     }
 
-    public Equipo(String nombre, String img) {
+    public Equipo(String nombre) {
         this.nombre = nombre;
-        this.img = img;
+
         this.jugadores=new ArrayList<Jugador>();
     }
 
@@ -27,13 +28,7 @@ public class Equipo {
         return jugadores;
     }
 
-    public String getImg() {
-        return img;
-    }
 
-    public void setImg(String img) {
-        this.img = img;
-    }
 
     public void setJugadores(ArrayList<Jugador> jugadores) {
         this.jugadores = jugadores;

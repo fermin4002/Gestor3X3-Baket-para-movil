@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:textAlignment="center"
-    tools:context=".MainActivity">
+    tools:context=".JugadorControlador">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,104 +56,66 @@
             android:background="#8EB5B7"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_gravity="center_vertical"
         android:layout_weight="90"
         android:orientation="vertical">
 
+        <EditText
+            android:id="@+id/editNombre"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Nombre" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="30"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <Spinner
-                android:id="@+id/equipo1"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:id="@+id/posicion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+            <EditText
+                android:id="@+id/editNumero"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="VS"
-                android:textAlignment="center"
-                android:textSize="20sp" />
-
-            <Spinner
-                android:id="@+id/equipo2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
+                android:ems="10"
+                android:inputType="text"
+                android:text="Nº" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="70"
+            android:layout_weight="8"
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/eliminar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Simular" />
+                android:text="Eliminar Jugador" />
 
-            <LinearLayout
+            <Button
+                android:id="@+id/editar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/equipo1nombre"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Local"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <ListView
-                        android:id="@+id/plantilla1"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/equipo2nombre"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Visitante"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <ListView
-                        android:id="@+id/plantilla2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-                </LinearLayout>
-            </LinearLayout>
-
+                android:layout_height="wrap_content"
+                android:text="EditarJugador" />
         </LinearLayout>
 
     </LinearLayout>
+
 </LinearLayout>

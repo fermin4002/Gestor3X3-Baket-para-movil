@@ -1,37 +1,31 @@
 package modelos;
 
-public class Jugador {
+import java.io.Serializable;
+
+public class Jugador implements Serializable {
 
     private String nombre;
     private String pos;
-    private int dorsal;
-    private String img;
+    private String dorsal;
 
-    public Jugador(String nombre,String pos,int dorsal) {
+
+
+
+    public Jugador(String nombre,String pos,String dorsal) {
         this.nombre=nombre;
         this.pos = pos;
         this.dorsal=dorsal;
-        this.img=null;
-    }
 
-    public Jugador(String nombre,String pos,int dorsal,String img) {
-        this.nombre=nombre;
-        this.pos = pos;
-        this.dorsal=dorsal;
-        this.img=img;
     }
 
     public String getPos() {
         return pos;
     }
 
-    public int getDorsal() {
+    public String getDorsal() {
         return dorsal;
     }
 
-    public String getImg() {
-        return img;
-    }
 
     public String getNombre() {
         return nombre;
@@ -45,11 +39,9 @@ public class Jugador {
         this.pos = pos;
     }
 
-    public void setDorsal(int dorsal) {
+    public void setDorsal(String dorsal) {
         this.dorsal = dorsal;
     }
 
-    public void setImg(String img) {
-        this.img = img;
-    }
+
 }

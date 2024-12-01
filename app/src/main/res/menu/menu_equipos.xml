@@ -2,30 +2,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:icon="@drawable/baseline_toc_24"
         android:title=""
-        android:icon="@drawable/baseline_settings_24"
         app:showAsAction="always">
 
         <menu>
 
             <item
                 android:id="@+id/pap"
-                android:title="About"
-                android:icon="@drawable/baseline_settings_24"
-                app:showAsAction="never"
-                />
+                android:icon="@drawable/baseline_directions_run_24"
+                android:title="Simulador"
+                app:showAsAction="never" />
             <item
                 android:id="@+id/pep"
-                android:title="Settings"
-                android:icon="@drawable/baseline_settings_24"
-                app:showAsAction="never"
-                />
+                android:icon="@drawable/baseline_apps_24"
+                android:title="Equipos"
+                app:showAsAction="never" />
             <item
                 android:id="@+id/pip"
-                android:title="About"
-                android:icon="@drawable/baseline_settings_24"
-                app:showAsAction="never"
-                />
+                android:icon="@drawable/baseline_family_restroom_24"
+                android:title="Plantillas"
+                app:showAsAction="never" />
 
         </menu>
 
