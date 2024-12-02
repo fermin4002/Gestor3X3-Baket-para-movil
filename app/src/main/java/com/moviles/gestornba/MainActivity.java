@@ -1,10 +1,8 @@
 package com.moviles.gestornba;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -86,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             nombre2=findViewById(R.id.equipo2nombre);
             toolbar = findViewById(R.id.barra);
             setSupportActionBar(toolbar);
-
+            simular=findViewById(R.id.simularB);
+            simular.setOnClickListener(this);
             equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
 
             if(null==equipos){
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //no Importante
+    //
     @Override
     protected void onSaveInstanceState(@NonNull Bundle datos) {
 
@@ -220,10 +219,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         equipo2.setAdapter(adapter);
     }
 
+    public void siumular(){
+        Intent i=new Intent(this, Simulacion.class);
+        i.putExtra("equipos", equipos);
+        i.putExtra("local",String.valueOf(local.getSelectedItem()));
+        i.putExtra("visitante",String.valueOf(visitante.getSelectedItem()));
+
+        startActivity(i);
+
+    }
+    public boolean sePuedeJugar(){
+        boolean salida=false;
+
+        if(!String.valueOf(this.local.getSelectedItem()).equalsIgnoreCase(String.valueOf(this.visitante.getSelectedItem()))){
+            Equipo local=buscarEquipo(String.valueOf(this.local.getSelectedItem()));
+            Equipo visitante=buscarEquipo(String.valueOf(this.visitante.getSelectedItem()));
+            if(local.getJugadores().size()>=3 && visitante.getJugadores().size()>=3){
+                salida=true;
+            }
+        }
+        return salida;
+    }
     @Override
     public void onClick(View v) {
-        if(v.getId()==R.id.button3){
-
+        if(v.getId()==R.id.simularB){
+            if(sePuedeJugar()){
+                siumular();
+            }else{
+                Toast.makeText(this, "Ambos equipos han de tener minimo 3 jugadores y no pueden ser el mismo", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }//fin Class

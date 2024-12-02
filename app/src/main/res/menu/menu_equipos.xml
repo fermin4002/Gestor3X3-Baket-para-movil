@@ -11,17 +11,17 @@
             <item
                 android:id="@+id/pap"
                 android:icon="@drawable/baseline_directions_run_24"
-                android:title="Simulador"
+                android:title="@string/simulador"
                 app:showAsAction="never" />
             <item
                 android:id="@+id/pep"
                 android:icon="@drawable/baseline_apps_24"
-                android:title="Equipos"
+                android:title="@string/equipo"
                 app:showAsAction="never" />
             <item
                 android:id="@+id/pip"
                 android:icon="@drawable/baseline_family_restroom_24"
-                android:title="Plantillas"
+                android:title="@string/plantilla"
                 app:showAsAction="never" />
 
         </menu>

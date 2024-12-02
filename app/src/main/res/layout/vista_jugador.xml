@@ -107,13 +107,13 @@
                 android:id="@+id/eliminar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Eliminar Jugador" />
+                android:text="@string/eliminarJ" />
 
             <Button
                 android:id="@+id/editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="EditarJugador" />
+                android:text="@string/editarJ" />
         </LinearLayout>
 
     </LinearLayout>

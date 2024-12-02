@@ -76,19 +76,19 @@
             android:id="@+id/editarEquipo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Editar" />
+            android:text="@string/editarE" />
 
         <Button
             android:id="@+id/crearEquipo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="+Equipo" />
+            android:text="@string/masE" />
 
         <Button
             android:id="@+id/eliminarEquipo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Eliminar Equipo" />
+            android:text="@string/eliminarE" />
 
         <ListView
             android:id="@+id/equiposLigaId"

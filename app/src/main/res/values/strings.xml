@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">GestorNBA</string>
+    <string name="app_name">Gestor3x3</string>
+
+    <string name="plantilla">Plantilla</string>
+    <string name="equipo">Equipos</string>
+    <string name="simulador">Simulador</string>
+
+    <string name="editarE">Editar Equipo</string>
+    <string name="masE">Añadir Equipo</string>
+    <string name="eliminarE">Eliminar Equipo</string>
+
+    <string name="editarJ">Editar Jugador</string>
+    <string name="masJ">Añadir Jugador</string>
+    <string name="eliminarJ">Eliminar Jugador</string>
 </resources>

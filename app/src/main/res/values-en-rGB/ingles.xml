@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Gestor3x3</string>
 
+    <string name="plantilla">Squad</string>
+    <string name="equipo">Teams</string>
+    <string name="simulador">Simulator</string>
 
+    <string name="editarE">Edit Team</string>
+    <string name="masE">Add Teams</string>
+    <string name="eliminarE">Delete Team</string>
+
+    <string name="editarJ">Edit Player</string>
+    <string name="masJ">Add Player</string>
+    <string name="eliminarJ">Delete Player</string>
 
 </resources>
