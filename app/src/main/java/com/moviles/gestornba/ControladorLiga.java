@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -29,6 +30,7 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
     ListView equiposLiga;
     Button editEquipo,elimiEquipo,anaEquipo;
     EditText creador;
+    Spinner selector;
 
     ArrayList<Equipo> equipos=new ArrayList<Equipo>();
     String nombreEquipo=null;
@@ -49,6 +51,10 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
         creador=findViewById(R.id.creadorEquipos);
 
+        selector=findViewById(R.id.selec);
+
+
+
         editEquipo=findViewById(R.id.editarEquipo);
         elimiEquipo=findViewById(R.id.eliminarEquipo);
         anaEquipo=findViewById(R.id.crearEquipo);
@@ -59,14 +65,25 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
         equiposLiga=findViewById(R.id.equiposLigaId);
         mostrarEquipos();
-        equiposLiga.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String itemSeleccionado = parent.getItemAtPosition(position).toString();
+                // Ejecutar función según la selección del Spinner 1
+                //ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
                 nombreEquipo=itemSeleccionado;
                 creador.setText(itemSeleccionado);
+
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
         });
+        cargarSpinner();
+
 
 
     }
@@ -125,11 +142,11 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
     public void crearEquipo(){
         int conteo=equipos.size();
         conteo++;
-        String nombre="Equipo nuevo"+conteo;
+        String nombre="Equipo nuevo "+conteo;
 
         while(existirEquipo(nombre)){
             conteo++;
-            nombre="Equipo nuevo"+conteo;
+            nombre="Equipo nuevo "+conteo;
         }
 
         equipos.add(new Equipo(nombre));
@@ -152,31 +169,45 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
     }
 
+    public void cargarSpinner(){
+       ArrayList<String> nombres=new ArrayList<String>();
+        for(Equipo clave:equipos){
+            nombres.add(clave.getNombre());
+        }
+
+        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,nombres);
+
+        selector.setAdapter(adaptador);
+    }
     public void editarEquipo(){
-        if(nombreEquipo!=null){
-            Equipo equipo=null;
+        String nombre=String.valueOf(selector.getSelectedItem());
+        String nombreModificado=String.valueOf(creador.getText());
+
+        if(!existirEquipo(nombreModificado)){
             for(Equipo clave:equipos){
-                if(clave.getNombre().equalsIgnoreCase(nombreEquipo)){
-                    equipo=clave;
+                if(clave.getNombre().equalsIgnoreCase(nombre)){
+                    clave.setNombre(nombreModificado);
                 }
             }
-            equipo.setNombre(String.valueOf(creador.getText()));
-            Toast.makeText(this,nombreEquipo+" ahora se llama "+String.valueOf(creador.getText()), Toast.LENGTH_SHORT).show();
-            nombreEquipo=null;
-        }else{
-            Toast.makeText(this,"Seleccione un equipo a modificar", Toast.LENGTH_SHORT).show();
         }
+
+
     }
+
+
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.eliminarEquipo){
             eliminarEquipo();
+            cargarSpinner();
             mostrarEquipos();
         }else if(v.getId()==R.id.crearEquipo){
             crearEquipo();
+            cargarSpinner();
             mostrarEquipos();
         }else if(v.getId()==R.id.editarEquipo){
             editarEquipo();
+            cargarSpinner();
             mostrarEquipos();
         }
     }

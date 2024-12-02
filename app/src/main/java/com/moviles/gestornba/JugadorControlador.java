@@ -157,10 +157,50 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
     public void modificarJugador(){
         Equipo equipo=buscarEquipo(nombreEquipo);
         Jugador jugador=buscarJugador(equipo,nombreJugador);
-        jugador.setNombre(String.valueOf(nombre.getText()));
-        jugador.setDorsal(String.valueOf(posi.getText()));
-        jugador.setPos(String.valueOf(pos.getSelectedItem()));
-        irPlantilla();
+        String nombre= String.valueOf(this.nombre.getText());
+        if(comprobarDorsal(equipo)&& comprobarNombre(nombre,equipo)){
+            jugador.setNombre(String.valueOf(this.nombre.getText()));
+            jugador.setDorsal(String.valueOf(posi.getText()));
+            jugador.setPos(String.valueOf(pos.getSelectedItem()));
+            irPlantilla();
+        }else if(!comprobarDorsal(equipo)) {
+            Toast.makeText(this,"El dorsal ha de ser un numero mayor a 0 y no lo puede tener otro en el equipo",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Ese jugador ya existe",Toast.LENGTH_SHORT).show();
+        }
+
+    }
+    public boolean comprobarNombre(String nombre, Equipo equipo){
+        boolean salida=true;
+
+        for(Jugador clave:equipo.getJugadores()){
+            if(clave.getNombre().equalsIgnoreCase(nombre) && !nombreJugador.equalsIgnoreCase(nombre)){
+               salida=false;
+            }
+        }
+
+        return salida;
+    }
+
+    public boolean comprobarDorsal(Equipo equipo){
+        boolean salida=true;
+        int dorsal;
+        String nombre=nombreJugador;
+        try{
+           dorsal=Integer.parseInt(String.valueOf(posi.getText())) ;
+           for(Jugador clave:equipo.getJugadores()){
+               if(Integer.parseInt(clave.getDorsal())==dorsal){
+                   if(!clave.getNombre().equalsIgnoreCase(nombre)){
+                       salida=false;
+                   }
+
+               }
+           }
+        }catch(Exception e){
+            e.printStackTrace();
+            salida=false;
+        }
+        return salida;
     }
 
     public void irPlantilla() {

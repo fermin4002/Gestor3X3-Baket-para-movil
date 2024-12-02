@@ -37,4 +37,17 @@ public class Equipo implements Serializable {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+    public int jugadoresUsables(){
+        int salida=0;
+
+        for(Jugador clave:jugadores){
+            if(Integer.parseInt(clave.getDorsal())!=-1){
+                salida++;
+            }
+        }
+
+        return salida;
+    }
+
 }

@@ -180,9 +180,29 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
 
     public void crearJugador(){
         Equipo equipo=buscarEquipo(String.valueOf(this.equip));
-        equipo.getJugadores().add(new Jugador("Jugador","C","-1"));
+
+        int conteo=equipo.getJugadores().size();
+        conteo++;
+        String nombre="Jugador nuevo "+conteo;
+
+        while(existirJugador(nombre,equipo)){
+            conteo++;
+            nombre="Jugador nuevo "+conteo;
+        }
+        equipo.getJugadores().add(new Jugador(nombre,"C","-1"));
         recuperar(String.valueOf(this.equip));
 
+    }
+
+    public boolean existirJugador(String nombre,Equipo equipo){
+        boolean salida=false;
+        for(Jugador clave: equipo.getJugadores()){
+            if (clave.getNombre().equalsIgnoreCase(nombre)) {
+                salida = true;
+
+            }
+        }
+        return salida;
     }
 
     //Visualizacion fin
@@ -198,7 +218,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         if(v.getId()==R.id.masJugador){
             crearJugador();
-            Toast.makeText(this, "Jugador Creado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Jugador Creado asignale un dorsal para poder usarlo", Toast.LENGTH_SHORT).show();
         }
     }
 }

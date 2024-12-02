@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D7D9B1"
     android:orientation="vertical"
     tools:context=".ControladorLiga">
 
@@ -65,10 +64,17 @@
         android:layout_weight="90"
         android:orientation="vertical">
 
+        <Spinner
+            android:id="@+id/selec"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <EditText
             android:id="@+id/creadorEquipos"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:ems="10"
             android:inputType="text"
             android:text="Name" />
@@ -76,25 +82,29 @@
         <Button
             android:id="@+id/editarEquipo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/editarE" />
 
         <Button
             android:id="@+id/crearEquipo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/masE" />
 
         <Button
             android:id="@+id/eliminarEquipo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/eliminarE" />
 
         <ListView
             android:id="@+id/equiposLigaId"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="0dp"
+            android:layout_weight="5" />
     </LinearLayout>
 
 </LinearLayout>

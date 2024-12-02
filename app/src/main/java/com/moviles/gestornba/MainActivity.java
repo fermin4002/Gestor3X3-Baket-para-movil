@@ -56,7 +56,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
                     // Ejecutar función según la selección del Spinner 1
-                    recuperar1(itemSeleccionado);
+                    ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
+                    nombre1.setText(itemSeleccionado);
+                    equipo1.setAdapter(adapter);
                 }
 
                 @Override
@@ -70,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
                     // Ejecutar función según la selección del Spinner 2
-                    recuperar2(itemSeleccionado);
+                    ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
+                    nombre2.setText(itemSeleccionado);
+                    equipo2.setAdapter(adapter);
                 }
 
                 @Override
@@ -205,30 +209,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //LISTENNER SPINNER
-    public void recuperar1(String equipo){
+
+    public ArrayAdapter<String> recuperar(String equipo){
         Equipo equi=buscarEquipo(equipo);
         ArrayList<String> item=new ArrayList<String>();
         for(Jugador clave:equi.getJugadores()){
-            item.add(clave.getNombre());
+            if(Integer.parseInt(clave.getDorsal())!=-1){
+                item.add(clave.getNombre());
+            }
         }
 
         ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,item);
-        nombre1.setText(equipo);
-        equipo1.setAdapter(adapter);
-
+        /*nombre1.setText(equipo);
+        equipo1.setAdapter(adapter);*/
+        return adapter;
     }
 
-    public void recuperar2(String equipo){
-        Equipo equi=buscarEquipo(equipo);
-        ArrayList<String> item=new ArrayList<String>();
-        for(Jugador clave:equi.getJugadores()){
-            item.add(clave.getNombre());
-        }
-
-        ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,item);
-        nombre2.setText(equipo);
-        equipo2.setAdapter(adapter);
-    }
 
     public void siumular(){
         Intent i=new Intent(this, Simulacion.class);
@@ -239,13 +235,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(i);
 
     }
+
     public boolean sePuedeJugar(){
         boolean salida=false;
 
         if(!String.valueOf(this.local.getSelectedItem()).equalsIgnoreCase(String.valueOf(this.visitante.getSelectedItem()))){
             Equipo local=buscarEquipo(String.valueOf(this.local.getSelectedItem()));
             Equipo visitante=buscarEquipo(String.valueOf(this.visitante.getSelectedItem()));
-            if(local.getJugadores().size()>=3 && visitante.getJugadores().size()>=3){
+            if(local.jugadoresUsables()>=3 && visitante.jugadoresUsables()>=3){
                 salida=true;
             }
         }
