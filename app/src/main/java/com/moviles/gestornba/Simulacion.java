@@ -123,19 +123,22 @@ public class Simulacion extends AppCompatActivity {
            for(Jugador clave: equipo.getJugadores()){
                jugadores.add(clave.getNombre());
            }
-            adaptador=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,jugadores);
+
         }else{
-            int num=(int)(0+Math.random()*equipo.getJugadores().size());
+            int num;
             for(int i=0;i<3;i++){
-                jugadores.add(equipo.getJugadores().get(num).getNombre());
-                num++;
-                if(num==equipo.getJugadores().size()){
-                    num=0;
+
+                num=(int)(0+Math.random()*equipo.getJugadores().size());
+                if(!jugadores.contains(equipo.getJugadores().get(num).getNombre())){
+                    jugadores.add(equipo.getJugadores().get(num).getNombre());
+
+                }else{
+                    i--;
                 }
             }
 
         }
-
+        adaptador=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,jugadores);
         return adaptador;
     }
 

@@ -169,16 +169,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         equipos.add(new Equipo("Boston"));
         equipos.add(new Equipo("Lakers"));
         equipos.add(new Equipo("Denver"));
-        equipos.add(new Equipo("Huston"));
-        equipos.add(new Equipo("Clipers"));
+
 
         ArrayList<Jugador> jugadores=new ArrayList<Jugador>();
-        jugadores.add(new Jugador("manolo","pepe","5"));
-        jugadores.add(new Jugador("manolo2","pepe2","5"));
-        jugadores.add(new Jugador("manolo3","pepe3","5"));
-        jugadores.add(new Jugador("manolo4","pepe4","5"));
-        equipos.get(0).setJugadores(jugadores);
+        jugadores.add(new Jugador("Lebron","Al","1"));
+        jugadores.add(new Jugador("Antony Davis","Ap","2"));
+        jugadores.add(new Jugador("Bronny","E","3"));
+        jugadores.add(new Jugador("Lonzo Ball","B","4"));
         equipos.get(1).setJugadores(jugadores);
+        jugadores=new ArrayList<Jugador>();
+        jugadores.add(new Jugador("Kevin Garnet","Al","1"));
+        jugadores.add(new Jugador(" Paul pierce","Ap","2"));
+        jugadores.add(new Jugador("Smart","E","3"));
+        jugadores.add(new Jugador("Jason Tatum","B","4"));
+        equipos.get(0).setJugadores(jugadores);
+        jugadores=new ArrayList<Jugador>();
+        jugadores.add(new Jugador("Nikola Jokic","C","1"));
+        jugadores.add(new Jugador("Michel Porter Jr","Ap","2"));
+        jugadores.add(new Jugador("Jamal Murray","E","3"));
+        jugadores.add(new Jugador("Rusell Westbrok","E","4"));
+        equipos.get(2).setJugadores(jugadores);
+
 
         return equipos;
     }
