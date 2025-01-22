@@ -1,5 +1,7 @@
 package com.moviles.gestornba;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 
@@ -23,6 +26,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 import modelos.*;
+import sql.DbHelper;
 
 public class ControladorEquipos extends AppCompatActivity implements View.OnClickListener{
 
@@ -32,8 +36,9 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     ListView listaEquipos;
     Spinner selector;
     //EQUIPOS
-    public ArrayList<Equipo> equipos=new ArrayList<Equipo>();
-    private String equip,jugador;
+    //public ArrayList<Equipo> equipos=new ArrayList<Equipo>();
+    private String usuario;
+    private int pk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +57,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             selector=findViewById(R.id.selector);
             jugadorplus=findViewById(R.id.masJugador);
             jugadorplus.setOnClickListener(this);
-
-            //Recibir Equipos
-            equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
+            usuario=getIntent().getStringExtra("usuario");
             cargarSpinner();
             //Seleccion jugador
             listaEquipos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,7 +65,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     //elemento seleccionado
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
-
+                    extraerPKequipo();
                     modificarJugador(itemSeleccionado);
                     //
 
@@ -75,8 +78,9 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
                     // Ejecutar función según la selección del Spinner 1
-                    equip=itemSeleccionado;
-                    recuperar(itemSeleccionado);
+                    //equip=itemSeleccionado;
+                    extraerPKequipo();
+                    listarJugadores(itemSeleccionado);
 
                 }
 
@@ -96,15 +100,13 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     @Override
     protected void onSaveInstanceState(@NonNull Bundle datos) {
 
-        datos.putSerializable("equipos",equipos);
-        super.onSaveInstanceState(datos);
+         super.onSaveInstanceState(datos);
 
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle datos) {
         super.onRestoreInstanceState(datos);
-        equipos= (ArrayList<Equipo>) datos.getSerializable("equipos");
 
     }
 
@@ -112,10 +114,8 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(R.id.pap==item.getItemId()){
             volverInicio();
-            //Toast.makeText(this, "boton pap", Toast.LENGTH_SHORT).show();
         }else if(R.id.pep==item.getItemId()){
             irEquipos();
-            // Toast.makeText(this, "Ya estas en equipos", Toast.LENGTH_SHORT).show();
         }else if(R.id.pip==item.getItemId()){
             Toast.makeText(this, "Ya estas en equipos", Toast.LENGTH_SHORT).show();
         }
@@ -131,45 +131,119 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     //Metodos propios
     public void volverInicio() {
         Intent i=new Intent(this, MainActivity.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
 
     public void irEquipos(){
         Intent i=new Intent(this, ControladorLiga.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
-
+    //aqui
     public void cargarSpinner(){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        ArrayList<String> item=new ArrayList<String>();
 
-        ArrayList<String> equipos=new ArrayList<String>();
+        String query="select nombre from equipo " +
+                "where  usuario_fk=?";
 
-        for(Equipo clave:this.equipos){
-            equipos.add(clave.getNombre());
+        String[] variables={usuario};
+
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,variables);
+
+            while(c.moveToNext()){
+                item.add(c.getString(c.getColumnIndex("nombre")));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
         }
-        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,equipos);
+        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,item);
 
         selector.setAdapter(adaptador);
 
     }
 
-    public Equipo buscarEquipo(String nombre){
-        Equipo salida=null;
-        for(Equipo clave:equipos){
-            if(nombre.equalsIgnoreCase(clave.getNombre())){
-                salida=clave;
-            }
-        }
-        return salida;
-    }
 
     //LISTENNER SPINNER
-    public void recuperar(String equipo){
-        Equipo equi=buscarEquipo(equipo);
+    public void extraerPKequipo(){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        String equipo=String.valueOf(selector.getSelectedItem());
+        String query="select id_equipo from equipo where usuario_fk=? and nombre=?";
+        String[] values={usuario,equipo};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,values);
+            if(c.moveToFirst()){
+                pk=c.getInt(c.getColumnIndex("id_equipo"));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
+        }
+    }
+
+    public void listarJugadores(String equipo){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
         ArrayList<String> item=new ArrayList<String>();
-        for(Jugador clave:equi.getJugadores()){
-            item.add(clave.getNombre());
+
+        String query="select j.nombre from jugador j " +
+                "inner join equipo e on e.id_equipo=j.equipo_fk " +
+                "where e.nombre=? and e.usuario_fk=?";
+
+        String[] variables={equipo,usuario};
+
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,variables);
+
+            while(c.moveToNext()){
+                item.add(c.getString(c.getColumnIndex("j.nombre")));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
         }
 
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,item);
@@ -179,38 +253,107 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     }
 
     public void crearJugador(){
-        Equipo equipo=buscarEquipo(String.valueOf(this.equip));
-
-        int conteo=equipo.getJugadores().size();
-        conteo++;
-        String nombre="Jugador nuevo "+conteo;
-
+        String equipo=String.valueOf(selector.getSelectedItem());
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        String nombre="Jugador nuevo 1";
+        int cont=1;
         while(existirJugador(nombre,equipo)){
-            conteo++;
-            nombre="Jugador nuevo "+conteo;
+            cont++;
+            nombre="Jugador nuevo "+cont;
         }
-        equipo.getJugadores().add(new Jugador(nombre,"C","-1"));
-        recuperar(String.valueOf(this.equip));
 
+        String query="insert into jugador(nombre,dorsal,posicion,equipo_fk) values (?,-1,?,?)";
+        String[] values={nombre,"C",String.valueOf(pk)};
+        //equipo.getJugadores().add(new Jugador(nombre,"C","-1"));
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getWritableDatabase();
+            db.execSQL(query,values);
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+        }
+
+        listarJugadores(equipo);
     }
 
-    public boolean existirJugador(String nombre,Equipo equipo){
+    public boolean existirJugador(String nombre,String equipo){
         boolean salida=false;
-        for(Jugador clave: equipo.getJugadores()){
-            if (clave.getNombre().equalsIgnoreCase(nombre)) {
-                salida = true;
+        SQLiteDatabase db=null;
 
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        String query="select j.nombre from jugador j " +
+                "inner join equipo e on j.equipo_fk=e.id_equipo " +
+                "where e.usuario_fk=? and e.nombre=? and j.nombre=?";
+        String[] values={usuario,equipo,nombre};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,values);
+            if(c.moveToFirst()){
+               salida=true;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
             }
         }
         return salida;
     }
 
-    //Visualizacion fin
+    //Visualizacion fin plantear diferente
     public void modificarJugador(String jugador) {
+        String equipo=String.valueOf(selector.getSelectedItem());
+        int pk=0;
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
         Intent i=new Intent(this, JugadorControlador.class);
-        i.putExtra("equipos", equipos);
-        i.putExtra("nombreEquipo",equip);
-        i.putExtra("jugador",jugador);
+        String query="select j.id_jugador from jugador j " +
+                "inner join equipo e on j.equipo_fk=e.id_equipo " +
+                "where e.usuario_fk=? and e.nombre=? and j.nombre=?";
+        String[] values={usuario,equipo,jugador};
+       try{
+           dbOpen=new DbHelper(this);
+           db=dbOpen.getReadableDatabase();
+           c=db.rawQuery(query,values);
+           if(c.moveToFirst()){
+               pk=c.getInt(c.getColumnIndex("j.id_jugador"));
+           }
+       }catch(Exception e){
+           e.printStackTrace();
+       }finally {
+           if(null!=db){
+               db.close();
+           }
+           if(null!=dbOpen){
+               dbOpen.close();
+           }
+           if(null!=c){
+               c.close();
+           }
+       }
+        i.putExtra("usuario", usuario);
+        i.putExtra("jugador",pk);
+        i.putExtra("pkEquipo",this.pk);
         startActivity(i);
     }
 

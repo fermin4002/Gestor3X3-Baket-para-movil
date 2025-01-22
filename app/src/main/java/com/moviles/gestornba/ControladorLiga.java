@@ -1,6 +1,8 @@
 package com.moviles.gestornba;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.view.Menu;
@@ -24,6 +26,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import modelos.*;
+import sql.DbHelper;
 
 public class ControladorLiga extends AppCompatActivity implements View.OnClickListener {
     Toolbar toolbar;
@@ -32,9 +35,8 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
     EditText creador;
     Spinner selector;
 
-    ArrayList<Equipo> equipos=new ArrayList<Equipo>();
-    String nombreEquipo=null;
-
+    //ArrayList<Equipo> equipos=new ArrayList<Equipo>();
+    String usuario;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +49,8 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
         });
         toolbar = findViewById(R.id.barra);
         setSupportActionBar(toolbar);
-        equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
-
+       // equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
+        usuario=getIntent().getStringExtra("usuario");
         creador=findViewById(R.id.creadorEquipos);
 
         selector=findViewById(R.id.selec);
@@ -64,14 +66,14 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
         anaEquipo.setOnClickListener(this);
 
         equiposLiga=findViewById(R.id.equiposLigaId);
-        mostrarEquipos();
+
         selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String itemSeleccionado = parent.getItemAtPosition(position).toString();
                 // Ejecutar función según la selección del Spinner 1
                 //ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
-                nombreEquipo=itemSeleccionado;
+
                 creador.setText(itemSeleccionado);
 
             }
@@ -82,7 +84,8 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
             }
 
         });
-        cargarSpinner();
+        selector.setAdapter(cargarEquipos());
+        equiposLiga.setAdapter(cargarEquipos());
 
 
 
@@ -108,90 +111,171 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
+
     public void irSimular() {
         Intent i=new Intent(this, MainActivity.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
-    }
-
-    public void mostrarEquipos(){
-        ArrayList<String> nombresEquipos=new ArrayList<String>();
-
-        for(Equipo clave:equipos){
-            nombresEquipos.add(clave.getNombre());
-        }
-        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,nombresEquipos);
-
-        equiposLiga.setAdapter(adaptador);
     }
 
     public boolean existirEquipo(String nombre){
         boolean salida=false;
-        for(Equipo clave: equipos){
-            if (clave.getNombre().equalsIgnoreCase(nombre)) {
-                salida = true;
+        //String nombreEquipo= String.valueOf(selector.getSelectedItem());
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        String consulta="select nombre from equipo where usuario_fk=? and nombre=?;";
 
+        String[] variables={usuario,nombre};
+
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(consulta,variables);
+
+            if(c.moveToFirst()){
+                salida=true;
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
             }
         }
         return salida;
     }
 
     public void crearEquipo(){
-        int conteo=equipos.size();
-        conteo++;
-        String nombre="Equipo nuevo "+conteo;
+        String nombre=String.valueOf(creador.getText());
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
 
-        while(existirEquipo(nombre)){
-            conteo++;
-            nombre="Equipo nuevo "+conteo;
+        if(!existirEquipo(nombre)&&!nombre.equals("")){
+            String crearEquipo="insert into equipo (nombre,usuario_fk) values (?,?)";
+
+            String[] variables={nombre,usuario};
+
+            try{
+                dbOpen=new DbHelper(this);
+                db=dbOpen.getWritableDatabase();
+                db.execSQL(crearEquipo,variables);
+            }catch(Exception e){
+                e.printStackTrace();
+            }finally{
+                if(null!=db){
+                    db.close();
+                }
+                if(null!=dbOpen){
+                    dbOpen.close();
+                }
+
+            }
         }
-
-        equipos.add(new Equipo(nombre));
 
     }
 
     public void eliminarEquipo(){
-        String nombreEquipo= String.valueOf(creador.getText());
-        Equipo equipo=null;
-        for(Equipo clave:equipos){
-            if(clave.getNombre().equalsIgnoreCase(nombreEquipo)){
-                equipo=clave;
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        String nombreEquipo= String.valueOf(selector.getSelectedItem());
+
+
+        String elimnarjugadores="delete from jugador where equipo_fk in(" +
+                "select id_equipo from equipo where usuario_fk=? and nombre=?)";
+
+        String[] variables={usuario,nombreEquipo};
+
+        String eliminarEquipo="delete from equipo where usuario_fk=? and nombre=?";
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getWritableDatabase();
+            db.execSQL(elimnarjugadores,variables);
+            db.execSQL(eliminarEquipo,variables);
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+
+        }
+    }
+
+    public  ArrayAdapter<String>  cargarEquipos(){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        ArrayAdapter<String> adaptador=null;
+        String query="select nombre from equipo where usuario_fk=?";
+        String[] variables={usuario};
+        ArrayList<String> equipos=new ArrayList<String>();
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,variables);
+            while(c.moveToNext()){
+                equipos.add(c.getString(c.getColumnIndex("nombre")));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
             }
         }
-        if(null!=equipo){
-            equipos.remove(equipo);
-        }else{
-            Toast.makeText(this, nombreEquipo+" no exixte", Toast.LENGTH_SHORT).show();
-        }
+
+        adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,equipos);
+
+        return adaptador;
 
     }
 
-    public void cargarSpinner(){
-       ArrayList<String> nombres=new ArrayList<String>();
-        for(Equipo clave:equipos){
-            nombres.add(clave.getNombre());
-        }
-
-        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,nombres);
-
-        selector.setAdapter(adaptador);
-    }
     public void editarEquipo(){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
         String nombre=String.valueOf(selector.getSelectedItem());
         String nombreModificado=String.valueOf(creador.getText());
+        String updateNombre="update equipo set nombre=? where nombre=? and usuario_fk=?;";
+
+        String[] variables={nombreModificado,nombre,usuario,};
 
         if(!existirEquipo(nombreModificado)){
-            for(Equipo clave:equipos){
-                if(clave.getNombre().equalsIgnoreCase(nombre)){
-                    clave.setNombre(nombreModificado);
+            try{
+                dbOpen=new DbHelper(this);
+                db=dbOpen.getWritableDatabase();
+                db.execSQL(updateNombre,variables);
+            }catch(Exception e){
+                e.printStackTrace();
+            }finally{
+                if(null!=db){
+                    db.close();
                 }
+                if(null!=dbOpen){
+                    dbOpen.close();
+                }
+
             }
         }
-
-
     }
 
 
@@ -199,16 +283,17 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         if(v.getId()==R.id.eliminarEquipo){
             eliminarEquipo();
-            cargarSpinner();
-            mostrarEquipos();
+            selector.setAdapter(cargarEquipos());
+            equiposLiga.setAdapter(cargarEquipos());
+
         }else if(v.getId()==R.id.crearEquipo){
             crearEquipo();
-            cargarSpinner();
-            mostrarEquipos();
+            selector.setAdapter(cargarEquipos());
+            equiposLiga.setAdapter(cargarEquipos());
         }else if(v.getId()==R.id.editarEquipo){
             editarEquipo();
-            cargarSpinner();
-            mostrarEquipos();
+            selector.setAdapter(cargarEquipos());
+            equiposLiga.setAdapter(cargarEquipos());
         }
     }
 }

@@ -122,15 +122,44 @@
                     <TextView
                         android:id="@+id/equipo1nombre"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="10"
+                        android:gravity="center_vertical"
                         android:text="Local"
+                        android:textAlignment="center"
                         android:textSize="20sp"
                         android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="10"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/localWin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textAlignment="center"
+                            android:textColor="#38FB00" />
+
+                        <TextView
+                            android:id="@+id/localLose"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textAlignment="center"
+                            android:textColor="#FF0000" />
+                    </LinearLayout>
 
                     <ListView
                         android:id="@+id/plantilla1"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="0dp"
+                        android:layout_weight="80" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -142,15 +171,44 @@
                     <TextView
                         android:id="@+id/equipo2nombre"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="10"
+                        android:gravity="center_vertical"
                         android:text="Visitante"
+                        android:textAlignment="center"
                         android:textSize="20sp"
                         android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="10"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/visitanteWin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textAlignment="center"
+                            android:textColor="#38FB00" />
+
+                        <TextView
+                            android:id="@+id/visitanteLose"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textAlignment="center"
+                            android:textColor="#FF0000" />
+                    </LinearLayout>
 
                     <ListView
                         android:id="@+id/plantilla2"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="0dp"
+                        android:layout_weight="80" />
                 </LinearLayout>
             </LinearLayout>
 

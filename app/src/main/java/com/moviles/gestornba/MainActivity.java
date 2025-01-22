@@ -1,6 +1,8 @@
 package com.moviles.gestornba;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 import modelos.*;
+import sql.DbHelper;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -33,10 +36,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ListView equipo1,equipo2;
     Spinner local,visitante;
     Button simular;
-    TextView nombre1,nombre2;
+    TextView nombre1,nombre2,localWin,localLose,visitanteWin,visitanteLose;
 
+    //BBDD
+
+    String usuario;
     //EQUIPOS
-    public ArrayList<Equipo> equipos=new ArrayList<Equipo>();
+   // public ArrayList<Equipo> equipos=new ArrayList<Equipo>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             equipo2=findViewById(R.id.plantilla2);
             local=findViewById(R.id.equipo1);
             visitante=findViewById(R.id.equipo2);
+            localWin=findViewById(R.id.localWin);
+            localLose=findViewById(R.id.localLose);
+            visitanteWin=findViewById(R.id.visitanteWin);
+            visitanteLose=findViewById(R.id.visitanteLose);
+
+            usuario=getIntent().getStringExtra("usuario");
 
             local.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -57,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
                     // Ejecutar función según la selección del Spinner 1
                     ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
+                    Equipo temp=buscarEquipo(itemSeleccionado);
+                    localWin.setText(String.valueOf(temp.getVictorias()));
+                    localLose.setText(String.valueOf(temp.getDerrotas()));
                     nombre1.setText(itemSeleccionado);
                     equipo1.setAdapter(adapter);
                 }
@@ -73,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String itemSeleccionado = parent.getItemAtPosition(position).toString();
                     // Ejecutar función según la selección del Spinner 2
                     ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
+                    Equipo temp=buscarEquipo(itemSeleccionado);
+                    visitanteWin.setText(String.valueOf(temp.getVictorias()));
+                    visitanteLose.setText(String.valueOf(temp.getDerrotas()));
                     nombre2.setText(itemSeleccionado);
                     equipo2.setAdapter(adapter);
                 }
@@ -90,11 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setSupportActionBar(toolbar);
             simular=findViewById(R.id.simularB);
             simular.setOnClickListener(this);
-            equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
 
-            if(null==equipos){
-                equipos=crearPrueba();
-            }
             cargarSpinner();
             return insets;
 
@@ -127,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onSaveInstanceState(@NonNull Bundle datos) {
 
-        datos.putSerializable("equipos",equipos);
+        //datos.putSerializable("equipos",equipos);
         super.onSaveInstanceState(datos);
 
     }
@@ -135,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle datos) {
         super.onRestoreInstanceState(datos);
-        equipos= (ArrayList<Equipo>) datos.getSerializable("equipos");
+        //equipos= (ArrayList<Equipo>) datos.getSerializable("equipos");
 
     }
     //
@@ -143,68 +157,129 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //Metodos propios
     public void cargarSpinner(){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
 
-       ArrayList<String> equipos=new ArrayList<String>();
+        Cursor c=null;
 
-       for(Equipo clave:this.equipos){
-           equipos.add(clave.getNombre());
-       }
+        String query="select nombre from equipo where usuario_fk=?";
+        String[] variables={usuario};
+        ArrayList<String> equipos=new ArrayList<String>();
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,variables);
+            while(c.moveToNext()){
+                equipos.add(c.getString(c.getColumnIndex("nombre")));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
+        }
+
        ArrayAdapter<String> adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,equipos);
 
        local.setAdapter(adaptador);
        visitante.setAdapter(adaptador);
     }
 
-
-    public void irPlantilla() {
-        Intent i=new Intent(this, ControladorEquipos.class);
-        i.putExtra("equipos", equipos);
-        startActivity(i);
-    }
-
-    public void irEquipos(){
-        Intent i=new Intent(this, ControladorLiga.class);
-        i.putExtra("equipos", equipos);
-        startActivity(i);
-    }
-
-    public ArrayList<Equipo> crearPrueba(){
-        ArrayList<Equipo> equipos=new ArrayList<Equipo>();
-        equipos.add(new Equipo("Boston"));
-        equipos.add(new Equipo("Lakers"));
-        equipos.add(new Equipo("Denver"));
-
-
-        ArrayList<Jugador> jugadores=new ArrayList<Jugador>();
-        jugadores.add(new Jugador("Lebron","Al","1"));
-        jugadores.add(new Jugador("Antony Davis","Ap","2"));
-        jugadores.add(new Jugador("Bronny","E","3"));
-        jugadores.add(new Jugador("Lonzo Ball","B","4"));
-        equipos.get(1).setJugadores(jugadores);
-        jugadores=new ArrayList<Jugador>();
-        jugadores.add(new Jugador("Kevin Garnet","Al","1"));
-        jugadores.add(new Jugador(" Paul pierce","Ap","2"));
-        jugadores.add(new Jugador("Smart","E","3"));
-        jugadores.add(new Jugador("Jason Tatum","B","4"));
-        equipos.get(0).setJugadores(jugadores);
-        jugadores=new ArrayList<Jugador>();
-        jugadores.add(new Jugador("Nikola Jokic","C","1"));
-        jugadores.add(new Jugador("Michel Porter Jr","Ap","2"));
-        jugadores.add(new Jugador("Jamal Murray","E","3"));
-        jugadores.add(new Jugador("Rusell Westbrok","E","4"));
-        equipos.get(2).setJugadores(jugadores);
-
-
-        return equipos;
-    }
+    //Consultas Extraer equipos
 
     public Equipo buscarEquipo(String nombre){
+        Cursor c=null;
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
         Equipo salida=null;
-        for(Equipo clave:equipos){
-            if(nombre.equalsIgnoreCase(clave.getNombre())){
-                salida=clave;
+        //Equipo
+        String club;
+        String idUsuario;
+        int idEquipo;
+
+        String recuperarEquipoSQL="select * from equipo where usuario_fk=? and nombre=?";
+        String[] variables={usuario,nombre};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c= db.rawQuery(recuperarEquipoSQL,variables);
+            if(c.moveToFirst()){
+                club=c.getString(c.getColumnIndex("nombre"));
+                idUsuario=c.getString(c.getColumnIndex("usuario_fk"));
+                idEquipo=c.getInt(c.getColumnIndex("id_equipo"));
+                salida=new Equipo(club,idEquipo,idUsuario);
+                salida.setVictorias(c.getInt(c.getColumnIndex("victorias")));
+                salida.setDerrotas(c.getInt(c.getColumnIndex("derrotas")));
+                salida.setJugadores(buscarJugadores(idEquipo));
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
             }
         }
+
+        return salida;
+    }
+
+    public ArrayList<Jugador> buscarJugadores(int fkEquipo){
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+
+        ArrayList<Jugador> salida=new ArrayList<Jugador>();
+
+        //jugador
+        String nombre;
+        String pos;
+        String dorsal;
+        int id_jugador;
+        int equipo_fk;
+
+        String sqlJugadores="select * from jugador where equipo_fk=?";
+        String[] variables={String.valueOf(fkEquipo)};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(sqlJugadores,variables);
+            while (c.moveToNext()){
+                nombre=c.getString(c.getColumnIndex("nombre"));
+                pos=c.getString(c.getColumnIndex("posicion"));
+                dorsal=c.getString(c.getColumnIndex("dorsal"));
+                id_jugador=c.getInt(c.getColumnIndex("id_jugador"));
+                equipo_fk=c.getInt(c.getColumnIndex("equipo_fk"));
+                salida.add(new Jugador(nombre,pos,Integer.parseInt(dorsal),id_jugador,equipo_fk));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
+        }
+
         return salida;
     }
 
@@ -214,28 +289,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Equipo equi=buscarEquipo(equipo);
         ArrayList<String> item=new ArrayList<String>();
         for(Jugador clave:equi.getJugadores()){
-            if(Integer.parseInt(clave.getDorsal())!=-1){
+            if(clave.getDorsal()!=-1){
                 item.add(clave.getNombre());
             }
         }
 
         ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,item);
-        /*nombre1.setText(equipo);
-        equipo1.setAdapter(adapter);*/
+        //nombre1.setText(equipo);
+
         return adapter;
     }
 
-
+    //Desplazarse por las actividades
     public void siumular(){
         Intent i=new Intent(this, Simulacion.class);
-        i.putExtra("equipos", equipos);
+        //i.putExtra("equipos", equipos);
         i.putExtra("local",String.valueOf(local.getSelectedItem()));
         i.putExtra("visitante",String.valueOf(visitante.getSelectedItem()));
-
+        i.putExtra("usuario", usuario);
         startActivity(i);
 
     }
 
+    public void irPlantilla() {
+        Intent i=new Intent(this, ControladorEquipos.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irEquipos(){
+        Intent i=new Intent(this, ControladorLiga.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    //
     public boolean sePuedeJugar(){
         boolean salida=false;
 

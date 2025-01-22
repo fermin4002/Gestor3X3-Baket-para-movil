@@ -1,6 +1,8 @@
 package com.moviles.gestornba;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 import modelos.*;
+import sql.DbHelper;
 
 public class JugadorControlador extends AppCompatActivity implements View.OnClickListener {
 
@@ -29,8 +32,10 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
     private EditText nombre,posi;
     private Button eliminaJugador,modificarJugador;
     Toolbar toolbar;
-    private ArrayList<Equipo> equipos=new ArrayList<Equipo>();
-    private String nombreEquipo,nombreJugador;
+    //private ArrayList<Equipo> equipos=new ArrayList<Equipo>();
+    private String usuario;
+    private int pkJugador;
+    private int equipo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +50,9 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
         setSupportActionBar(toolbar);
 
 
-        equipos = (ArrayList<Equipo>) getIntent().getSerializableExtra("equipos");
-        nombreEquipo=getIntent().getStringExtra("nombreEquipo");
-        nombreJugador=getIntent().getStringExtra("jugador");
+        usuario=getIntent().getStringExtra("usuario");
+        pkJugador=getIntent().getIntExtra("jugador",0);
+        equipo=getIntent().getIntExtra("pkEquipo",0);
 
         pos=findViewById(R.id.posicion);
         nombre=findViewById(R.id.editNombre);
@@ -100,7 +105,7 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
 
     }
 
-    public Equipo buscarEquipo(String nombre){
+   /* public Equipo buscarEquipo(String nombre){
         Equipo salida=null;
         for(Equipo clave:equipos){
             if(clave.getNombre().equalsIgnoreCase(nombre)){
@@ -108,23 +113,49 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
             }
         }
         return salida;
-    }
+    }*/
 
-    public Jugador buscarJugador(Equipo equipo,String jugador){
+    public Jugador buscarJugador(){
         Jugador salida=null;
-        for(Jugador clave:equipo.getJugadores()){
-            if(clave.getNombre().equalsIgnoreCase(jugador)){
-                salida=clave;
-            }
-        }
+
         return salida;
     }
 
     public void cargarJugador(){
-        Equipo equipo=buscarEquipo(nombreEquipo);
-        Jugador jugador=buscarJugador(equipo,nombreJugador);
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
         int posicion=0;
-        switch(jugador.getPos()){
+        String nombre=null;
+        String posicionLetra=null;
+        String dorsal=null;
+        String query="select nombre,dorsal,posicion " +
+                     "from jugador j " +
+                     "where id_jugador=?";
+        String[] values={String.valueOf(pkJugador)};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getReadableDatabase();
+            c=db.rawQuery(query,values);
+            if(c.moveToFirst()){
+                nombre=c.getString(c.getColumnIndex("nombre"));
+                posicionLetra=c.getString(c.getColumnIndex("posicion"));
+                dorsal=String.valueOf(c.getInt(c.getColumnIndex("dorsal")));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
+        }
+        switch(posicionLetra){
             case "B":
                 posicion=0;
                 break;
@@ -142,88 +173,175 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
                 break;
         }
         pos.setSelection(posicion);
-        nombre.setText(jugador.getNombre());
-        posi.setText(jugador.getDorsal());
+        this.nombre.setText(nombre);
+        posi.setText(dorsal);
     }
 
     public void eliminarJugador(){
-        Equipo equipo=buscarEquipo(nombreEquipo);
-        Jugador jugador=buscarJugador(equipo,nombreJugador);
-        equipo.getJugadores().remove(jugador);
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+
+        String query="delete from jugador where id_jugador=?";
+        String[] values={String.valueOf(pkJugador)};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getWritableDatabase();
+            db.execSQL(query,values);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
+        }
+
         irPlantilla();
 
     }
 
     public void modificarJugador(){
-        Equipo equipo=buscarEquipo(nombreEquipo);
-        Jugador jugador=buscarJugador(equipo,nombreJugador);
-        String nombre= String.valueOf(this.nombre.getText());
-        if(comprobarDorsal(equipo)&& comprobarNombre(nombre,equipo)){
-            jugador.setNombre(String.valueOf(this.nombre.getText()));
-            jugador.setDorsal(String.valueOf(posi.getText()));
-            jugador.setPos(String.valueOf(pos.getSelectedItem()));
-            irPlantilla();
-        }else if(!comprobarDorsal(equipo)) {
-            Toast.makeText(this,"El dorsal ha de ser un numero mayor a 0 y no lo puede tener otro en el equipo",Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this,"Ese jugador ya existe",Toast.LENGTH_SHORT).show();
+        String nombre=String.valueOf(this.nombre.getText());
+        String dorsal=String.valueOf(posi.getText());
+        String posicion= String.valueOf(pos.getSelectedItem());
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+
+        String query="update  jugador set nombre=?,dorsal=?,posicion=? where id_jugador=?";
+        String[] values={nombre,dorsal,posicion,String.valueOf(pkJugador)};
+        try{
+            dbOpen=new DbHelper(this);
+            db=dbOpen.getWritableDatabase();
+            db.execSQL(query,values);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally {
+            if(null!=db){
+                db.close();
+            }
+            if(null!=dbOpen){
+                dbOpen.close();
+            }
         }
 
     }
-    public boolean comprobarNombre(String nombre, Equipo equipo){
-        boolean salida=true;
+    public boolean existeNombre(){
+        boolean salida=false;
+        String nombre=String.valueOf(this.nombre.getText());
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        String query="select nombre from jugador " +
+                "where equipo_fk=? and id_jugador!=?";
+        String[] values={String.valueOf(equipo),String.valueOf(pkJugador)};
 
-        for(Jugador clave:equipo.getJugadores()){
-            if(clave.getNombre().equalsIgnoreCase(nombre) && !nombreJugador.equalsIgnoreCase(nombre)){
-               salida=false;
+            try {
+                dbOpen=new DbHelper(this);
+                db=dbOpen.getReadableDatabase();
+                c = db.rawQuery(query, values);
+                while (c.moveToNext()) {
+                    if (c.getString(c.getColumnIndex("nombre")).equals(nombre)) {
+                        salida = true;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (null != db) {
+                    db.close();
+                }
+                if (null != dbOpen) {
+                    dbOpen.close();
+                }
+                if (null != c) {
+                    c.close();
+                }
             }
-        }
 
         return salida;
     }
 
-    public boolean comprobarDorsal(Equipo equipo){
-        boolean salida=true;
-        int dorsal;
-        String nombre=nombreJugador;
+    public boolean existeDorsal(){
+        boolean salida=false;
+        int dorsal=-1;
+        SQLiteDatabase db=null;
+        DbHelper dbOpen=null;
+        Cursor c=null;
+        String query="select dorsal from jugador " +
+                     "where equipo_fk=? and id_jugador!=?";
+        String[] values={String.valueOf(equipo),String.valueOf(pkJugador)};
         try{
-           dorsal=Integer.parseInt(String.valueOf(posi.getText())) ;
-           for(Jugador clave:equipo.getJugadores()){
-               if(Integer.parseInt(clave.getDorsal())==dorsal){
-                   if(!clave.getNombre().equalsIgnoreCase(nombre)){
-                       salida=false;
-                   }
-
-               }
-           }
+             dorsal=Integer.parseInt(String.valueOf(posi.getText()));
         }catch(Exception e){
             e.printStackTrace();
-            salida=false;
+        }
+
+        if(dorsal>0) {
+            try {
+                dbOpen=new DbHelper(this);
+                db=dbOpen.getReadableDatabase();
+                c = db.rawQuery(query, values);
+                while (c.moveToNext()) {
+                    if (c.getInt(c.getColumnIndex("dorsal")) == dorsal) {
+                        salida = true;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (null != db) {
+                    db.close();
+                }
+                if (null != dbOpen) {
+                    dbOpen.close();
+                }
+                if (null != c) {
+                    c.close();
+                }
+            }
+        }else{
+            salida=true;
         }
         return salida;
     }
 
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
     public void irEquipos() {
         Intent i=new Intent(this, ControladorLiga.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
     public void irSimular() {
         Intent i=new Intent(this, MainActivity.class);
-        i.putExtra("equipos", equipos);
+        i.putExtra("usuario", usuario);
         startActivity(i);
     }
+
+
+
+
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.eliminar){
             eliminarJugador();
         }else if(v.getId()==R.id.editar){
-            modificarJugador();
+            if(!existeDorsal()&& !existeNombre()){
+                modificarJugador();
+                irPlantilla();
+            }else if(existeDorsal()) {
+                Toast.makeText(this,"El dorsal ha de ser un numero mayor a 0 y no lo puede tener otro en el equipo",Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this,"Ese jugador ya existe",Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 }
