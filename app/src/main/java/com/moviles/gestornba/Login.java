@@ -163,11 +163,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         Cursor c=null;
 
         String query1= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
-                        "(\"Lakers\",2,1,?)" ;
+                        "(\"Lakers\",0,0,?)" ;
         String query2= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
-                "(\"Boston Celtics\",0,2,?)" ;
+                "(\"Boston Celtics\",0,0,?)" ;
         String query3= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
-                "(\"Denver Nugets\",2,1,?)" ;
+                "(\"Denver Nugets\",0,0,?)" ;
 
         String query11="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
                 "(\"Lebron James\",1,\"C\",?)";
