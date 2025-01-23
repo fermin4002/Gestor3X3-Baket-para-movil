@@ -52,68 +52,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            equipo1=findViewById(R.id.plantilla1);
-            equipo2=findViewById(R.id.plantilla2);
-            local=findViewById(R.id.equipo1);
-            visitante=findViewById(R.id.equipo2);
-            localWin=findViewById(R.id.localWin);
-            localLose=findViewById(R.id.localLose);
-            visitanteWin=findViewById(R.id.visitanteWin);
-            visitanteLose=findViewById(R.id.visitanteLose);
-
-            usuario=getIntent().getStringExtra("usuario");
-
-            local.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String itemSeleccionado = parent.getItemAtPosition(position).toString();
-                    // Ejecutar función según la selección del Spinner 1
-                    ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
-                    Equipo temp=buscarEquipo(itemSeleccionado);
-                    localWin.setText(String.valueOf(temp.getVictorias()));
-                    localLose.setText(String.valueOf(temp.getDerrotas()));
-                    nombre1.setText(itemSeleccionado);
-                    equipo1.setAdapter(adapter);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                }
-
-                });
-            visitante.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String itemSeleccionado = parent.getItemAtPosition(position).toString();
-                    // Ejecutar función según la selección del Spinner 2
-                    ArrayAdapter<String> adapter= recuperar(itemSeleccionado);
-                    Equipo temp=buscarEquipo(itemSeleccionado);
-                    visitanteWin.setText(String.valueOf(temp.getVictorias()));
-                    visitanteLose.setText(String.valueOf(temp.getDerrotas()));
-                    nombre2.setText(itemSeleccionado);
-                    equipo2.setAdapter(adapter);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    // Manejar el caso cuando no se selecciona nada (opcional)
-                }
-
-                });
-
-            nombre1=findViewById(R.id.equipo1nombre);
-            nombre2=findViewById(R.id.equipo2nombre);
-            toolbar = findViewById(R.id.barra);
-            setSupportActionBar(toolbar);
-            simular=findViewById(R.id.simularB);
-            simular.setOnClickListener(this);
-
-            cargarSpinner();
             return insets;
 
         });
+        equipo1=findViewById(R.id.plantilla1);
+        equipo2=findViewById(R.id.plantilla2);
+        local=findViewById(R.id.equipo1);
+        visitante=findViewById(R.id.equipo2);
+        localWin=findViewById(R.id.localWin);
+        localLose=findViewById(R.id.localLose);
+        visitanteWin=findViewById(R.id.visitanteWin);
+        visitanteLose=findViewById(R.id.visitanteLose);
 
+        usuario=getIntent().getStringExtra("usuario");
+
+        local.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String itemSeleccionado = parent.getItemAtPosition(position).toString();
+                // Ejecutar función según la selección del Spinner 1
+                AdaptadorJugador adapter= recuperar(itemSeleccionado);
+                Equipo temp=buscarEquipo(itemSeleccionado);
+                localWin.setText(String.valueOf(temp.getVictorias()));
+                localLose.setText(String.valueOf(temp.getDerrotas()));
+                nombre1.setText(itemSeleccionado);
+                equipo1.setAdapter(adapter);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+        visitante.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String itemSeleccionado = parent.getItemAtPosition(position).toString();
+                // Ejecutar función según la selección del Spinner 2
+                AdaptadorJugador adapter= recuperar(itemSeleccionado);
+                Equipo temp=buscarEquipo(itemSeleccionado);
+                visitanteWin.setText(String.valueOf(temp.getVictorias()));
+                visitanteLose.setText(String.valueOf(temp.getDerrotas()));
+                nombre2.setText(itemSeleccionado);
+                equipo2.setAdapter(adapter);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Manejar el caso cuando no se selecciona nada (opcional)
+            }
+
+        });
+
+        nombre1=findViewById(R.id.equipo1nombre);
+        nombre2=findViewById(R.id.equipo2nombre);
+        toolbar = findViewById(R.id.barra);
+        setSupportActionBar(toolbar);
+        simular=findViewById(R.id.simularB);
+        simular.setOnClickListener(this);
+        cargarSpinner();
     }
 
     @Override
@@ -124,8 +122,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(R.id.pep==item.getItemId()){
             irEquipos();
 
-        }else if(R.id.pip==item.getItemId()){
+        }else if(R.id.pip ==item.getItemId()){
             irPlantilla();
+
+        }else if(R.id.pop ==item.getItemId()){
+            irClasificacion();
 
         }
         return super.onOptionsItemSelected(item);
@@ -141,7 +142,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onSaveInstanceState(@NonNull Bundle datos) {
 
-        //datos.putSerializable("equipos",equipos);
+        datos.putString("equipol", String.valueOf(local.getSelectedItem()));
+        datos.putString("equipov", String.valueOf(visitante.getSelectedItem()));
+
         super.onSaveInstanceState(datos);
 
     }
@@ -149,11 +152,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle datos) {
         super.onRestoreInstanceState(datos);
-        //equipos= (ArrayList<Equipo>) datos.getSerializable("equipos");
+        String equipol=datos.getString("equipol");
+        String equipov=datos.getString("equipov");
+
+        recuperarEquipo(local,equipol);
+        recuperarEquipo(visitante,equipov);
+
 
     }
     //
+    public int recuperarEquipo(Spinner selector,String equipo){
+        int salida=0;
+        ArrayAdapter<String> adapter=(ArrayAdapter<String>) selector.getAdapter();
+        int pos=0;
+        for(int i=0;i<adapter.getCount();i++){
+            if(equipo.equals(adapter.getItem(i))){
+                pos=i;
+            }
+        }
 
+        selector.setSelection(pos);
+        return salida;
+    }
 
     //Metodos propios
     public void cargarSpinner(){
@@ -285,16 +305,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //LISTENNER SPINNER
 
-    public ArrayAdapter<String> recuperar(String equipo){
+    public AdaptadorJugador recuperar(String equipo){
         Equipo equi=buscarEquipo(equipo);
-        ArrayList<String> item=new ArrayList<String>();
+        ArrayList<ItemJugador> item=new ArrayList<ItemJugador>();
         for(Jugador clave:equi.getJugadores()){
             if(clave.getDorsal()!=-1){
-                item.add(clave.getNombre());
+                item.add(new ItemJugador(clave.getNombre(),clave.getPos(),clave.getDorsal()));
             }
         }
 
-        ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,item);
+        AdaptadorJugador adapter=new AdaptadorJugador(this,item);
         //nombre1.setText(equipo);
 
         return adapter;
@@ -313,6 +333,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irClasificacion() {
+        Intent i=new Intent(this, Clasificacion.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }

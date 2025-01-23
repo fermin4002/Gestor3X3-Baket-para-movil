@@ -5,6 +5,7 @@
     <string name="plantilla">Squad</string>
     <string name="equipo">Teams</string>
     <string name="simulador">Simulator</string>
+    <string name="clasi">Ranking</string>
 
     <string name="editarE">Edit Team</string>
     <string name="masE">Add Teams</string>
@@ -13,5 +14,10 @@
     <string name="editarJ">Edit Player</string>
     <string name="masJ">Add Player</string>
     <string name="eliminarJ">Delete Player</string>
+
+    <string name="usu">User:</string>
+    <string name="contra">Password:</string>
+    <string name="ini">Sign in</string>
+    <string name="regis">Sign up</string>
 
 </resources>

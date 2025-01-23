@@ -3,7 +3,6 @@ package com.moviles.gestornba;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
-import modelos.*;
+
 import sql.DbHelper;
 
 public class ControladorLiga extends AppCompatActivity implements View.OnClickListener {
@@ -90,16 +89,18 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
 
     }
-    @Override
 
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         if(R.id.pap==item.getItemId()){
             irSimular();
         }else if(R.id.pep==item.getItemId()){
             Toast.makeText(this, "Ya estas en equipos", Toast.LENGTH_SHORT).show();
-        }else if(R.id.pip==item.getItemId()){
+        }else if(R.id.pip ==item.getItemId()){
             irPlantilla();
+        }else if(R.id.pop ==item.getItemId()){
+            irClasificacion();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -111,6 +112,12 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
 
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irClasificacion() {
+        Intent i=new Intent(this, Clasificacion.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }
@@ -295,5 +302,35 @@ public class ControladorLiga extends AppCompatActivity implements View.OnClickLi
             selector.setAdapter(cargarEquipos());
             equiposLiga.setAdapter(cargarEquipos());
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle datos) {
+        datos.putString("equipo", String.valueOf(selector.getSelectedItem()));
+        //datos.putString("equipoN",String.valueOf(creador.getText()));
+        super.onSaveInstanceState(datos);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle datos) {
+        super.onRestoreInstanceState(datos);
+        String equipo=datos.getString("equipo");
+        recuperarEquipo(selector,equipo);
+        //creador.setText(datos.getString("equipoN"));
+    }
+    //
+    public int recuperarEquipo(Spinner selector,String equipo){
+        int salida=0;
+        ArrayAdapter<String> adapter=(ArrayAdapter<String>) selector.getAdapter();
+        int pos=0;
+        for(int i=0;i<adapter.getCount();i++){
+            if(equipo.equals(adapter.getItem(i))){
+                pos=i;
+            }
+        }
+
+        selector.setSelection(pos);
+        return salida;
     }
 }

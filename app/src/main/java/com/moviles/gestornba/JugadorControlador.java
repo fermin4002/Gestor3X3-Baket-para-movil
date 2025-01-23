@@ -34,6 +34,7 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
     Toolbar toolbar;
     //private ArrayList<Equipo> equipos=new ArrayList<Equipo>();
     private String usuario;
+    private String nombreEquipo;
     private int pkJugador;
     private int equipo;
     @Override
@@ -53,7 +54,7 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
         usuario=getIntent().getStringExtra("usuario");
         pkJugador=getIntent().getIntExtra("jugador",0);
         equipo=getIntent().getIntExtra("pkEquipo",0);
-
+        nombreEquipo=getIntent().getStringExtra("nombreEquipo");
         pos=findViewById(R.id.posicion);
         nombre=findViewById(R.id.editNombre);
         posi=findViewById(R.id.editNumero);
@@ -76,11 +77,45 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
         }else if(R.id.pep==item.getItemId()){
             irEquipos();
 
-        }else if(R.id.pip==item.getItemId()){
+        }else if(R.id.pip ==item.getItemId()){
             irPlantilla();
-            Toast.makeText(this, "boton pip", Toast.LENGTH_SHORT).show();
+
+        }else if(R.id.pop ==item.getItemId()){
+            irClasificacion();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle datos) {
+
+        datos.putString("pos", String.valueOf(pos.getSelectedItem()));
+
+
+        super.onSaveInstanceState(datos);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle datos) {
+        super.onRestoreInstanceState(datos);
+        String pos=datos.getString("pos");
+        recuperarPos(this.pos,pos);
+    }
+    //
+    public int recuperarPos(Spinner selector,String equipo){
+        int salida=0;
+        ArrayAdapter<String> adapter=(ArrayAdapter<String>) selector.getAdapter();
+        int pos=0;
+        for(int i=0;i<adapter.getCount();i++){
+            if(equipo.equals(adapter.getItem(i))){
+                pos=i;
+            }
+        }
+
+        selector.setSelection(pos);
+        return salida;
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -312,6 +347,7 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
         i.putExtra("usuario", usuario);
+        i.putExtra("nombreEquipo",nombreEquipo);
         startActivity(i);
     }
     public void irEquipos() {
@@ -321,6 +357,12 @@ public class JugadorControlador extends AppCompatActivity implements View.OnClic
     }
     public void irSimular() {
         Intent i=new Intent(this, MainActivity.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irClasificacion() {
+        Intent i=new Intent(this, Clasificacion.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }

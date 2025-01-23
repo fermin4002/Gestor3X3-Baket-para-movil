@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 
@@ -25,7 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 
-import modelos.*;
+import modelos.ItemJugador;
 import sql.DbHelper;
 
 public class ControladorEquipos extends AppCompatActivity implements View.OnClickListener{
@@ -38,6 +37,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
     //EQUIPOS
     //public ArrayList<Equipo> equipos=new ArrayList<Equipo>();
     private String usuario;
+    private String nombreEquipo=null;
     private int pk;
 
     @Override
@@ -48,67 +48,58 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-           //Menu desplegable
-            toolbar = findViewById(R.id.barra);
-            setSupportActionBar(toolbar);
-
-            listaEquipos=findViewById(R.id.equipo);
-
-            selector=findViewById(R.id.selector);
-            jugadorplus=findViewById(R.id.masJugador);
-            jugadorplus.setOnClickListener(this);
-            usuario=getIntent().getStringExtra("usuario");
-            cargarSpinner();
-            //Seleccion jugador
-            listaEquipos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    //elemento seleccionado
-                    String itemSeleccionado = parent.getItemAtPosition(position).toString();
-                    extraerPKequipo();
-                    modificarJugador(itemSeleccionado);
-                    //
-
-                }
-            });
-
-
-            selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String itemSeleccionado = parent.getItemAtPosition(position).toString();
-                    // Ejecutar función según la selección del Spinner 1
-                    //equip=itemSeleccionado;
-                    extraerPKequipo();
-                    listarJugadores(itemSeleccionado);
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                }
-
-            });
-
-
             return insets;
         });
+        //Menu desplegable
+        toolbar = findViewById(R.id.barra);
+        setSupportActionBar(toolbar);
+
+        listaEquipos=findViewById(R.id.equipo);
+
+        selector=findViewById(R.id.selector);
+        jugadorplus=findViewById(R.id.masJugador);
+        jugadorplus.setOnClickListener(this);
+        usuario=getIntent().getStringExtra("usuario");
+        nombreEquipo=getIntent().getStringExtra("nombreEquipo");
+        cargarSpinner();
+        //Seleccion jugador
+        listaEquipos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //elemento seleccionado
+                extraerPKequipo();
+                ItemJugador otem= (ItemJugador) listaEquipos.getAdapter().getItem(position);
+                String nombre=otem.getNombre();
+                modificarJugador(nombre);
+                //
+
+            }
+        });
+
+
+        selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String itemSeleccionado = parent.getItemAtPosition(position).toString();
+                // Ejecutar función según la selección del Spinner 1
+                //equip=itemSeleccionado;
+                extraerPKequipo();
+                listarJugadores(itemSeleccionado);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+        if(null!=nombreEquipo){
+            recuperarEquipo(nombreEquipo);
+        }
 
     }
     //A partir de aqui
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle datos) {
-
-         super.onSaveInstanceState(datos);
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle datos) {
-        super.onRestoreInstanceState(datos);
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -116,8 +107,10 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             volverInicio();
         }else if(R.id.pep==item.getItemId()){
             irEquipos();
-        }else if(R.id.pip==item.getItemId()){
+        }else if(R.id.pip ==item.getItemId()){
             Toast.makeText(this, "Ya estas en equipos", Toast.LENGTH_SHORT).show();
+        }else if(R.id.pop ==item.getItemId()){
+            irClasificacion();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -137,6 +130,12 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
 
     public void irEquipos(){
         Intent i=new Intent(this, ControladorLiga.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irClasificacion() {
+        Intent i=new Intent(this, Clasificacion.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }
@@ -215,9 +214,9 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
         SQLiteDatabase db=null;
         DbHelper dbOpen=null;
         Cursor c=null;
-        ArrayList<String> item=new ArrayList<String>();
+        ArrayList<ItemJugador> item=new ArrayList<ItemJugador>();
 
-        String query="select j.nombre from jugador j " +
+        String query="select j.* from jugador j " +
                 "inner join equipo e on e.id_equipo=j.equipo_fk " +
                 "where e.nombre=? and e.usuario_fk=?";
 
@@ -227,9 +226,14 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             dbOpen=new DbHelper(this);
             db=dbOpen.getReadableDatabase();
             c=db.rawQuery(query,variables);
-
+            String nombre;
+            String pos;
+            int dorsal;
             while(c.moveToNext()){
-                item.add(c.getString(c.getColumnIndex("j.nombre")));
+                nombre=c.getString(c.getColumnIndex("nombre"));
+                pos=c.getString(c.getColumnIndex("posicion"));
+                dorsal=c.getInt(c.getColumnIndex("dorsal"));
+                item.add(new ItemJugador(nombre,pos,dorsal));
             }
 
         }catch (Exception e){
@@ -246,7 +250,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             }
         }
 
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,item);
+        AdaptadorJugador adapter=new AdaptadorJugador(this,item);
 
         listaEquipos.setAdapter(adapter);
 
@@ -354,6 +358,7 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
         i.putExtra("usuario", usuario);
         i.putExtra("jugador",pk);
         i.putExtra("pkEquipo",this.pk);
+        i.putExtra("nombreEquipo",String.valueOf(selector.getSelectedItem()));
         startActivity(i);
     }
 
@@ -363,5 +368,35 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             crearJugador();
             Toast.makeText(this, "Jugador Creado asignale un dorsal para poder usarlo", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle datos) {
+
+        datos.putString("equipo", String.valueOf(selector.getSelectedItemId()));
+
+        super.onSaveInstanceState(datos);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle datos) {
+        super.onRestoreInstanceState(datos);
+        String equipo=datos.getString("equipo");
+
+        recuperarEquipo(equipo);
+
+    }
+
+    public void recuperarEquipo(String equipo){
+        ArrayAdapter<String> adapter=(ArrayAdapter<String>) selector.getAdapter();
+        int pos=0;
+        for(int i=0;i<adapter.getCount();i++){
+            if(equipo.equals(adapter.getItem(i))){
+                pos=i;
+            }
+        }
+
+        selector.setSelection(pos);
     }
 }

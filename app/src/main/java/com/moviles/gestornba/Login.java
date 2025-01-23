@@ -99,12 +99,12 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
 
 
-        if(null==comprobarExistencia(usuario)){
+        if(null==comprobarExistencia(usuario)||(usuario.equals("")||contrasena.equals(""))){
             try {
                 dbOpen=new DbHelper(this);
                 db=dbOpen.getWritableDatabase();
                 db.execSQL(sqlQuery, valores);
-
+                insertarRegistro();
                 Log.d("BBDD", "tira");
 
             }catch(Exception e){
@@ -116,8 +116,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 if(null!=dbOpen){
                     dbOpen.close();
                 }
-                irPrincipal(usuario);
+
             }
+            irPrincipal(usuario);
         }else{
             error.setText("El ususario introducido ya existe");
         }
@@ -154,6 +155,89 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         }
 
         return salida;
+    }
+
+    public void insertarRegistro(){
+        DbHelper dbOpne=null;
+        SQLiteDatabase db=null;
+        Cursor c=null;
+
+        String query1= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
+                        "(\"Lakers\",2,1,?)" ;
+        String query2= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
+                "(\"Boston Celtics\",0,2,?)" ;
+        String query3= "insert into equipo(nombre,victorias,derrotas,usuario_fk) values" +
+                "(\"Denver Nugets\",2,1,?)" ;
+
+        String query11="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Lebron James\",1,\"C\",?)";
+        String query12="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Antony Davies\",2,\"C\",?)";
+        String query13="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Lonzo Ball\",3,\"C\",?)";
+
+        String query21="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Jason Tatum\",1,\"C\",?)";
+        String query22="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Antony Smart\",2,\"C\",?)";
+        String query23="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Kevin Garnet\",3,\"C\",?)";
+
+        String query31="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Nikola Jokik\",1,\"C\",?)";
+        String query32="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Jamal Murray\",2,\"C\",?)";
+        String query33="insert into jugador(nombre,dorsal,posicion,equipo_fk)values " +
+                "(\"Michel Porter Jr.\",3,\"C\",?)";
+
+        try{
+            String[] user= {String.valueOf(this.usuario.getText())};
+            String[] pk=new String[1];
+            dbOpne=new DbHelper(this);
+            db=dbOpen.getWritableDatabase();
+            db.execSQL(query1,user);
+            c=db.rawQuery("SELECT last_insert_rowid()", null);
+            if (c.moveToFirst()) {
+                long lastId = c.getLong(0);
+                pk[0]=String.valueOf(lastId);
+            }
+            db.execSQL(query11,pk);
+            db.execSQL(query12,pk);
+            db.execSQL(query13,pk);
+            //
+            db.execSQL(query2,user);
+            c=db.rawQuery("SELECT last_insert_rowid()", null);
+            if (c.moveToFirst()) {
+                long lastId = c.getLong(0);
+                pk[0]=String.valueOf(lastId);
+            }
+            db.execSQL(query21,pk);
+            db.execSQL(query22,pk);
+            db.execSQL(query23,pk);
+            //
+            db.execSQL(query3,user);
+            c=db.rawQuery("SELECT last_insert_rowid()", null);
+            if (c.moveToFirst()) {
+                long lastId = c.getLong(0);
+                pk[0]=String.valueOf(lastId);
+            }
+            db.execSQL(query31,pk);
+            db.execSQL(query32,pk);
+            db.execSQL(query33,pk);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(db!=null){
+                db.close();
+            }
+            if(dbOpne!=null){
+                dbOpen.close();
+            }
+            if(null!=c){
+                c.close();
+            }
+        }
     }
 
 

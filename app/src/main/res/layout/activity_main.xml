@@ -106,7 +106,8 @@
                 android:id="@+id/simularB"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Simular" />
+                android:text="Simular"
+                android:textColorLink="#ff6750a4" />
 
             <LinearLayout
                 android:layout_width="match_parent"

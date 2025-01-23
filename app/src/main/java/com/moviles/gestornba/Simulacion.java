@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -73,8 +72,10 @@ public class Simulacion extends AppCompatActivity {
         }else if(R.id.pep==item.getItemId()){
             irEquipos();
 
-        }else if(R.id.pip==item.getItemId()){
+        }else if(R.id.pip ==item.getItemId()){
             irPlantilla();
+        }else if(R.id.pop ==item.getItemId()){
+            irClasificacion();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -86,6 +87,12 @@ public class Simulacion extends AppCompatActivity {
 
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+
+    public void irClasificacion() {
+        Intent i=new Intent(this, Clasificacion.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }
@@ -216,9 +223,11 @@ public class Simulacion extends AppCompatActivity {
     public ArrayAdapter<String> cargarEquipos(Equipo equipo){
         ArrayAdapter<String> adaptador=null;
         ArrayList<String> jugadores=new ArrayList<String>();
+
         if(equipo.getJugadores().size()==3){
            for(Jugador clave: equipo.getJugadores()){
                jugadores.add(clave.getNombre());
+
            }
 
         }else{
@@ -226,7 +235,7 @@ public class Simulacion extends AppCompatActivity {
             for(int i=0;i<3;i++){
 
                 num=(int)(0+Math.random()*equipo.getJugadores().size());
-                if(!jugadores.contains(equipo.getJugadores().get(num).getNombre())){
+                if(!jugadores.contains(equipo.getJugadores().get(num).getNombre())&&equipo.getJugadores().get(num).getDorsal()>0){
                     jugadores.add(equipo.getJugadores().get(num).getNombre());
 
                 }else{

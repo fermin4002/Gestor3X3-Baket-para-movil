@@ -21,9 +21,9 @@ public class DbHelper extends SQLiteOpenHelper {
             "create table "+ EstructuraSQL.Equipo.TABLE_NAME+"( "+
                     EstructuraSQL.Equipo.ID_EQUIPO+" integer primary key autoincrement, "+
                     EstructuraSQL.Equipo.NOMBRE+" string not null,"+
-                    EstructuraSQL.Equipo.USUARIO_FK+" string," +
-                    EstructuraSQL.Equipo.VICTORIAS+" integer default 0," +
-                    EstructuraSQL.Equipo.DERROTAS+" integer default 0," +
+                    EstructuraSQL.Equipo.USUARIO_FK+" string not null," +
+                    EstructuraSQL.Equipo.VICTORIAS+" integer not null default 0," +
+                    EstructuraSQL.Equipo.DERROTAS+" integer not null default 0," +
                     "foreign key (usuario_fk) references usuario(nombre))";
 
     private static final String SQL_DELETE_EQUIPO=
@@ -35,7 +35,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     EstructuraSQL.Jugador.NOMBRE+" string not null, "+
                     EstructuraSQL.Jugador.DORSAL+" integer not null, "+
                     EstructuraSQL.Jugador.POSICION+" string not null,"+
-                    EstructuraSQL.Jugador.EQUIPO_FK+" integer," +
+                    EstructuraSQL.Jugador.EQUIPO_FK+" integer not null," +
                     " foreign key (equipo_fk) references equipo(id_equipo))";
 
     private static final String SQL_DELETE_JUGADOR=
@@ -59,6 +59,7 @@ public class DbHelper extends SQLiteOpenHelper {
         Log.d("BBDD", SQL_CREATE_EQUIPO);
         db.execSQL(SQL_CREATE_JUGADOR);
         Log.d("BBDD", SQL_CREATE_JUGADOR);
+
     }
 
     @Override
@@ -69,6 +70,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         onCreate(db);
     }
+
 
     //Consultas
 

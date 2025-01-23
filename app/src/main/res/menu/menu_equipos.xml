@@ -23,6 +23,13 @@
                 android:icon="@drawable/baseline_family_restroom_24"
                 android:title="@string/plantilla"
                 app:showAsAction="never" />
+            <item
+                android:id="@+id/pop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:icon="@drawable/baseline_workspace_premium_24"
+                android:title="@string/clasi"
+                app:showAsAction="never" />
 
         </menu>
 
