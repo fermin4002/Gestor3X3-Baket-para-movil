@@ -28,7 +28,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     TextView error;
     SQLiteDatabase db;
     DbHelper dbOpen;
-    public MediaPlayer mediaPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,12 +50,13 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         btnInicio.setOnClickListener(this);
         btnRegistro=findViewById(R.id.btnRegistrarse);
         btnRegistro.setOnClickListener(this);
-        mediaPlayer = MediaPlayer.create(this, R.raw.audio1);
-        mediaPlayer.setLooping(true);
+
         visibilidad.setOnClickListener(this);
 
-        mediaPlayer.start();
 
+        Intent intent = new Intent(this, Audio.class);
+        intent.setAction(Audio.ACTION_PLAY); // o ACTION_PAUSE, ACTION_STOP
+        startService(intent);
     }
 
     @Override

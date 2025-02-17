@@ -6,10 +6,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +25,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -44,6 +42,14 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
     AudioManager audio;
     ActivityResultLauncher<Intent> launcherVideo;
     ImageView foton;
+    Button btnReco,btnStop,btnPlay;
+    Intent intent;
+
+
+
+    private MediaRecorder recorder = null;
+    private MediaPlayer player = null;
+    String fileName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,9 +60,18 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        intent = new Intent(this, Audio.class);
         toolbar = findViewById(R.id.barra);
         mute = findViewById(R.id.btnSilenciar);
+
+        fileName=getExternalCacheDir().getAbsolutePath() + "/grabacion_audio.3gp";
+
+        btnReco=findViewById(R.id.btnReco);
+        btnReco.setOnClickListener(this);
+        btnStop=findViewById(R.id.btnPara);
+        btnStop.setOnClickListener(this);
+        btnPlay=findViewById(R.id.btnRepro);
+        btnPlay.setOnClickListener(this);
         mute.setOnClickListener(this);
         setSupportActionBar(toolbar);
         audio=(AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -71,7 +86,8 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
         barraAudio.setMax(maxVolume);
         barraAudio.setProgress(currentVolume);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},100);
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},100);
+
         }
         launcherVideo = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -105,6 +121,8 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
 
             }
         });
+
+
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_equipos, menu);
@@ -164,6 +182,13 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
 
         } else if (v.getId()==R.id.btnTomarFoto) {
             tomarPicture();
+        }else if (v.getId()==R.id.btnReco) {
+            grabar();
+
+        }else if (v.getId()==R.id.btnRepro) {
+            reproducir();
+        }else if (v.getId()==R.id.btnPara) {
+            pararGrabar();
         }
 
     }
@@ -174,6 +199,89 @@ public class Ajustes extends AppCompatActivity implements View.OnClickListener {
         Intent fotito = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(getIntent().resolveActivity(getPackageManager())!=null) {
             launcherVideo.launch(fotito);
+        }
+    }
+
+
+
+    private void grabar() {
+        Intent intent = new Intent(this, Audio.class);
+        intent.setAction(Audio.ACTION_PAUSE); // o ACTION_PAUSE, ACTION_STOP
+        startService(intent);
+        recorder = new MediaRecorder();
+
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+
+        recorder.setOutputFile(fileName);
+
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            recorder.prepare();
+            recorder.start();
+            Toast.makeText(this, "Grabando", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+    }
+
+
+    private void pararGrabar() {
+        if (recorder != null) {
+            try {
+                recorder.stop();
+                Intent intent = new Intent(this, Audio.class);
+                intent.setAction(Audio.ACTION_PLAY); // o ACTION_PAUSE, ACTION_STOP
+                startService(intent);
+            } catch (RuntimeException stopException) {
+
+            }
+            recorder.release();
+            recorder = null;
+
+        }
+    }
+
+
+    private void reproducir() {
+        player = new MediaPlayer();
+        try {
+            Intent intent = new Intent(this, Audio.class);
+            intent.setAction(Audio.ACTION_PAUSE); // o ACTION_PAUSE, ACTION_STOP
+            startService(intent);
+            player.setDataSource(fileName);
+            player.prepare();
+            player.start();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    intent.setAction(Audio.ACTION_PLAY);
+                    startService(intent);
+                }
+            });
+            Toast.makeText(this, "Play ", Toast.LENGTH_SHORT).show();
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Liberar recursos al detener la actividad
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (recorder != null) {
+            recorder.release();
+            recorder = null;
+            Toast.makeText(this, "Grabación detenida", Toast.LENGTH_SHORT).show();
+        }
+        if (player != null) {
+            player.release();
+            player = null;
         }
     }
 

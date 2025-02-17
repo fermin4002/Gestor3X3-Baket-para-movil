@@ -96,6 +96,40 @@
             android:layout_height="wrap_content"
             android:text="Tomar Foto" />
 
+        <TextView
+            android:id="@+id/textView17"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notas:"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnReco"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Grabar" />
+
+            <Button
+                android:id="@+id/btnPara"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Parar" />
+
+            <Button
+                android:id="@+id/btnRepro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Reproducir" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>
