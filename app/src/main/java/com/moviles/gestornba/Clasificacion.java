@@ -62,10 +62,16 @@ public class Clasificacion extends AppCompatActivity {
             irPlantilla();
         }else if(R.id.pop ==item.getItemId()){
             Toast.makeText(this, "Ya estas en clasificacion", Toast.LENGTH_SHORT).show();
+        }else if(R.id.pup==item.getItemId()){
+            irAjustes();
         }
         return super.onOptionsItemSelected(item);
     }
-
+    public void irAjustes(){
+        Intent i=new Intent(this, Ajustes.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
     public void irPlantilla() {
         Intent i=new Intent(this, ControladorEquipos.class);
         i.putExtra("usuario", usuario);
@@ -85,7 +91,7 @@ public class Clasificacion extends AppCompatActivity {
     }
 
     public void recuperarEquipos(){
-        SQLiteDatabase db=null;
+         SQLiteDatabase db=null;
         DbHelper dbOpen=null;
         Cursor c=null;
         ArrayList<ItemList> list=new ArrayList<ItemList>();
@@ -109,7 +115,7 @@ public class Clasificacion extends AppCompatActivity {
             }
 
         }catch(Exception e){
-
+            e.printStackTrace();
         }finally {
             if(null!=db){
                 db.close();

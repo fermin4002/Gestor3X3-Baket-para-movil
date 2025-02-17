@@ -128,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(R.id.pop ==item.getItemId()){
             irClasificacion();
 
+        }else if(R.id.pup==item.getItemId()){
+            irAjustes();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -345,6 +347,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void irEquipos(){
         Intent i=new Intent(this, ControladorLiga.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
+    public void irAjustes(){
+        Intent i=new Intent(this, Ajustes.class);
         i.putExtra("usuario", usuario);
         startActivity(i);
     }

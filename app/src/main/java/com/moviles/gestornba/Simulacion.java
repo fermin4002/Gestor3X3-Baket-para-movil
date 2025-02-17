@@ -3,12 +3,15 @@ package com.moviles.gestornba;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,8 +30,8 @@ public class Simulacion extends AppCompatActivity {
 
     TextView marcadorL,marcadorV,localN,visitanteN;
     ListView plantillaL,plantillaV;
-
-
+    VideoView videoView;
+    MediaController mediaController;
 
     //ArrayList<Equipo> equipos=new ArrayList<Equipo>();
     String usuario;
@@ -55,12 +58,21 @@ public class Simulacion extends AppCompatActivity {
 
         plantillaL=findViewById(R.id.plantillaL);
         plantillaV=findViewById(R.id.plantillaV);
-
+        videoView= findViewById(R.id.videoYT);
         usuario=getIntent().getStringExtra("usuario");
         localS=getIntent().getStringExtra("local");
         visitanteS=getIntent().getStringExtra("visitante");
         //jugado=false;
+        String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.video1;
+        Uri uri = Uri.parse(videoPath);
 
+        videoView.setVideoURI(uri);
+
+        mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
+        videoView.start();
         simular();
 
 
@@ -76,10 +88,16 @@ public class Simulacion extends AppCompatActivity {
             irPlantilla();
         }else if(R.id.pop ==item.getItemId()){
             irClasificacion();
+        }else if(R.id.pup==item.getItemId()){
+            irAjustes();
         }
         return super.onOptionsItemSelected(item);
     }
-
+    public void irAjustes(){
+        Intent i=new Intent(this, Ajustes.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_equipos, menu);
         return true;

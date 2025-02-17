@@ -111,10 +111,16 @@ public class ControladorEquipos extends AppCompatActivity implements View.OnClic
             Toast.makeText(this, "Ya estas en equipos", Toast.LENGTH_SHORT).show();
         }else if(R.id.pop ==item.getItemId()){
             irClasificacion();
+        }else if(R.id.pup==item.getItemId()){
+            irAjustes();
         }
         return super.onOptionsItemSelected(item);
     }
-
+    public void irAjustes(){
+        Intent i=new Intent(this, Ajustes.class);
+        i.putExtra("usuario", usuario);
+        startActivity(i);
+    }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_equipos, menu);
         return true;

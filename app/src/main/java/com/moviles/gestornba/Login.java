@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
-
+import android.media.MediaPlayer;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -28,6 +28,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     TextView error;
     SQLiteDatabase db;
     DbHelper dbOpen;
+    public MediaPlayer mediaPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,9 +50,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         btnInicio.setOnClickListener(this);
         btnRegistro=findViewById(R.id.btnRegistrarse);
         btnRegistro.setOnClickListener(this);
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.audio1);
+        mediaPlayer.setLooping(true);
         visibilidad.setOnClickListener(this);
 
+        mediaPlayer.start();
 
     }
 
